@@ -36,7 +36,13 @@ function buscarProdutos(){
     req = new XMLHttpRequest();
     req.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
-            conteudo = "";
+            conteudo = 
+        "<tr>" +
+        "   <th>ID</th>"+
+        "  <th>Nome</th>"+
+        "   <th>Preço</th>"+
+        "   <th>Excluir</th>"+
+        "</tr>";
             objJSON = JSON.parse(this.responseText);
             if( objJSON.resposta){
                 alert( objJSON.resposta);
@@ -46,9 +52,10 @@ function buscarProdutos(){
                     conteudo += "<td>" + prod.id + "</td>";
                     conteudo += "<td>" + prod.nome + "</td>";
                     conteudo += "<td>" + prod.preco + "</td>";
-                    conteudo += "</tr>";
+                    conteudo += "<td><button onclick='excluir("+prod.id+")'>X</button></td>";
+                    conteudo += "</tr>"; 
                 });
-                document.getElementById("tblProdutos").innerHTML += conteudo;
+                document.getElementById("tblProdutos").innerHTML = conteudo;
                 
 
             }
@@ -56,6 +63,37 @@ function buscarProdutos(){
     };
 
 
-    req.open("GET", "servidor.php", true);
+    req.open("GET", "servidor.php?buscar", true);
+    req.send();
+}
+
+function cadastrar(){
+    req = new XMLHttpRequest();
+    req.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status == 200){
+            objJSON = JSON.parse( this.responseText);
+            alert("Produto cadastrado com sucesso!");
+            buscarProdutos();
+        }
+    };
+    nome = document.getElementById("txtNome").value;
+    preco = document.getElementById("txtPreco").value;
+    preco = preco.replace(",",".");
+
+    req.open("POST", "servidor.php?inserir", true);
+    req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    req.send("nome="+ nome +"&preco=" + preco);
+}
+
+function excluir( id ){
+    req = new XMLHttpRequest();
+    req.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status == 200){
+            objJSON = JSON.parse( this.responseText );
+            alert(objJSON.resposta);
+            buscarProdutos();
+        }
+    };
+    req.open("GET", "servidor.php?excluir&id=" + id, true);
     req.send();
 }
