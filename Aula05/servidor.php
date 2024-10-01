@@ -64,6 +64,33 @@
         }
     }
 
+    if( isset( $_REQUEST["editar"])){
+        try{
+            $conn = mysqli_connect("localhost", "root", "", "loja");
+            if ($conn){
+                $id = $_GET["id"];
+                $nome = $_POST["nome"];
+                $preco = $_POST["preco"];
+                $consulta = "UPDATE produto SET 
+                                    nome = '$nome', 
+                                    preco = '$preco'
+                                    WHERE id = $id ";
+
+                mysqli_query($conn, $consulta);
+                $id = mysqli_insert_id($conn);
+                mysqli_close($conn);  
+                echo '{"resposta" : "Produto editado com sucesso!"}';
+    
+            }else{
+                echo '{"resposta" : "Erro ao conectar com o banco de dados"}';
+            }
+        }catch(\Throwable $th ){
+            echo '{"resposta" : "Erro no servidor"}';
+        }
+    }
+
+    
+
 
 
     

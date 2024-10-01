@@ -1,3 +1,6 @@
+editando = false;
+codProduto = 0;
+
 function lerJSON(){
     requisicao = new XMLHttpRequest();
     requisicao.onreadystatechange = function(){
@@ -42,6 +45,7 @@ function buscarProdutos(){
         "  <th>Nome</th>"+
         "   <th>Preço</th>"+
         "   <th>Excluir</th>"+
+        "   <th>Editar</th>"+
         "</tr>";
             objJSON = JSON.parse(this.responseText);
             if( objJSON.resposta){
@@ -53,11 +57,11 @@ function buscarProdutos(){
                     conteudo += "<td>" + prod.nome + "</td>";
                     conteudo += "<td>" + prod.preco + "</td>";
                     conteudo += "<td><button onclick='excluir("+prod.id+")'>X</button></td>";
+                    conteudo += "<td><button onclick='carregarForm("+prod.id+",\""+prod.nome+"\" , "+ prod.preco+ ")'>Editar</button></td>";
                     conteudo += "</tr>"; 
                 });
                 document.getElementById("tblProdutos").innerHTML = conteudo;
                 
-
             }
         }
     };
@@ -72,7 +76,7 @@ function cadastrar(){
     req.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
             objJSON = JSON.parse( this.responseText);
-            alert("Produto cadastrado com sucesso!");
+            alert(objJSON.resposta);
             buscarProdutos();
         }
     };
@@ -80,7 +84,16 @@ function cadastrar(){
     preco = document.getElementById("txtPreco").value;
     preco = preco.replace(",",".");
 
-    req.open("POST", "servidor.php?inserir", true);
+
+    if (editando) {
+
+        req.open("POST", "servidor.php?editar&id="+codProduto, true);
+        document.getElementById("btnSalvar").innerHTML = "Cadastrar";
+        editando = false;
+        codProduto = 0;
+    } else {
+        req.open("POST", "servidor.php?inserir", true);
+    }
     req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     req.send("nome="+ nome +"&preco=" + preco);
 }
@@ -96,4 +109,13 @@ function excluir( id ){
     };
     req.open("GET", "servidor.php?excluir&id=" + id, true);
     req.send();
+}
+
+function carregarForm(id, nome, preco){
+    editando = true;
+    codProduto = id;
+    document.getElementById('txtNome').value = nome;
+    document.getElementById('txtPreco').value = preco;
+    document.getElementById('btnSalvar').innerHTML = "Editar";
+
 }
